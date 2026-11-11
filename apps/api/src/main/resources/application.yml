@@ -21,6 +21,7 @@ server:
 
 bybusca:
   default-tenant: ${BYBUSCA_DEFAULT_TENANT:demo-escola}
+  cors-origins: ${BYBUSCA_CORS_ORIGINS:http://localhost:*,http://127.0.0.1:*}
   jwt:
     secret: ${JWT_SECRET:change-me-bybusca-dev-secret-key-32b-min}
     expiration-minutes: ${JWT_EXPIRATION_MINUTES:480}

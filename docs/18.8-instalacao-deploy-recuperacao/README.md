@@ -86,6 +86,65 @@ server {
 
 ---
 
+## 4.1 Hostinger VPS (produção)
+
+Requisito: **VPS Ubuntu** (KVM 2 recomendado: 2 vCPU / 8 GB). Hospedagem compartilhada não roda a API Java.
+
+Subdomínio de produção: **http://bybusca.alenxandriaglobaltec.com/** (raiz do buscador; `/usuarios` é de outro sistema).
+
+No hPanel do domínio `alenxandriaglobaltec.com`:
+
+1. DNS → registro **A**  
+   - Nome/host: `bybusca`  
+   - Aponta para o **IP da VPS**  
+   - TTL: automático / 300  
+2. Firewall da VPS: **22**, **80**, **443**.
+
+No servidor (SSH como root):
+
+```bash
+apt-get update -y
+apt-get install -y ca-certificates curl git
+curl -fsSL https://get.docker.com | sh
+git clone https://github.com/pedrocutrimsantos/bybusca.git /opt/bybusca
+cd /opt/bybusca
+cp .env.example .env
+nano .env
+```
+
+No `.env` de produção, obrigatório:
+
+```text
+DB_USER=bybusca
+DB_PASSWORD=<senha-forte>
+JWT_SECRET=<string-aleatoria-32-chars-min>
+BYBUSCA_DEFAULT_TENANT=demo-escola
+BYBUSCA_CORS_ORIGINS=http://bybusca.alenxandriaglobaltec.com,https://bybusca.alenxandriaglobaltec.com
+GOOGLE_PSE_CX=e54b7047fc7e64e10
+VITE_GOOGLE_PSE_CX=e54b7047fc7e64e10
+VITE_TENANT=demo-escola
+```
+
+Subir:
+
+```bash
+docker compose -f docker-compose.prod.yml up -d --build
+docker compose -f docker-compose.prod.yml ps
+curl http://127.0.0.1/api/v1/health
+```
+
+O Nginx do container `web` serve o React e encaminha `/api/` para a API. HTTPS: instale Certbot no host ou use o SSL do hPanel apontando para a porta 80.
+
+Atualizar depois de um push no GitHub:
+
+```bash
+cd /opt/bybusca
+git pull
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+---
+
 ## 5. Google CSE (obrigatório para web filtrada)
 
 1. Painel: https://programmablesearchengine.google.com/  

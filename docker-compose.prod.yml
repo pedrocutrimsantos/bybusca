@@ -1,0 +1,58 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: bybusca-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-bybusca}
+      POSTGRES_USER: ${DB_USER:-bybusca}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?defina DB_PASSWORD no .env}
+    volumes:
+      - bybusca_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-bybusca} -d ${POSTGRES_DB:-bybusca}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  api:
+    build:
+      context: ./apps/api
+    container_name: bybusca-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SERVER_PORT: 8080
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-bybusca}
+      DB_USER: ${DB_USER:-bybusca}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET:?defina JWT_SECRET no .env}
+      BYBUSCA_DEFAULT_TENANT: ${BYBUSCA_DEFAULT_TENANT:-demo-escola}
+      BYBUSCA_CORS_ORIGINS: ${BYBUSCA_CORS_ORIGINS:-http://bybusca.alenxandriaglobaltec.com,https://bybusca.alenxandriaglobaltec.com,http://localhost:*,http://127.0.0.1:*}
+      GOOGLE_PSE_ENABLED: ${GOOGLE_PSE_ENABLED:-false}
+      GOOGLE_PSE_API_KEY: ${GOOGLE_PSE_API_KEY:-}
+      GOOGLE_PSE_CX: ${GOOGLE_PSE_CX:-e54b7047fc7e64e10}
+      GOOGLE_PSE_TIMEOUT_MS: ${GOOGLE_PSE_TIMEOUT_MS:-2500}
+      GOOGLE_VISION_ENABLED: ${GOOGLE_VISION_ENABLED:-false}
+      GOOGLE_VISION_API_KEY: ${GOOGLE_VISION_API_KEY:-}
+      GOOGLE_VISION_TIMEOUT_MS: ${GOOGLE_VISION_TIMEOUT_MS:-4000}
+      GOOGLE_VISION_MAX_UPLOAD_BYTES: ${GOOGLE_VISION_MAX_UPLOAD_BYTES:-5242880}
+
+  web:
+    build:
+      context: ./apps/web
+      args:
+        VITE_API_BASE_URL: /api/v1
+        VITE_TENANT: ${VITE_TENANT:-demo-escola}
+        VITE_GOOGLE_PSE_CX: ${VITE_GOOGLE_PSE_CX:-e54b7047fc7e64e10}
+    container_name: bybusca-web
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "80:80"
+
+volumes:
+  bybusca_pg:

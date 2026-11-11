@@ -5,6 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 @ConfigurationProperties(prefix = "bybusca")
 data class ByBuscaProperties(
     var defaultTenant: String = "demo-escola",
+    var corsOrigins: String = "http://localhost:*,http://127.0.0.1:*",
     var jwt: JwtProps = JwtProps(),
     var pse: PseProps = PseProps(),
     var vision: VisionProps = VisionProps()

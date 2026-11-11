@@ -16,7 +16,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource
 
 @Configuration
 @EnableConfigurationProperties(ByBuscaProperties::class)
-class SecurityConfig {
+class SecurityConfig(
+    private val props: ByBuscaProperties
+) {
     @Bean
     fun passwordEncoder(): PasswordEncoder = BCryptPasswordEncoder()
 
@@ -44,8 +46,12 @@ class SecurityConfig {
 
     @Bean
     fun corsConfigurationSource(): CorsConfigurationSource {
+        val origins = props.corsOrigins.split(",")
+            .map { it.trim() }
+            .filter { it.isNotBlank() }
+            .ifEmpty { listOf("http://localhost:*", "http://127.0.0.1:*") }
         val config = CorsConfiguration()
-        config.allowedOriginPatterns = listOf("http://localhost:*", "http://127.0.0.1:*")
+        config.allowedOriginPatterns = origins
         config.allowedMethods = listOf("GET", "POST", "PUT", "DELETE", "OPTIONS")
         config.allowedHeaders = listOf("*")
         config.allowCredentials = true
