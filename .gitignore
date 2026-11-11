@@ -1,0 +1,26 @@
+# Dependencies / build
+node_modules/
+dist/
+build/
+.gradle/
+**/build/
+*.jar
+*.war
+
+# Env / secrets
+.env
+.env.local
+*.pem
+*.key
+
+# IDE / OS
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Logs / coverage
+*.log
+coverage/
+.nyc_output/

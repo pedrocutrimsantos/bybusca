@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: bybusca-api
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/bybusca}
+    username: ${DB_USER:bybusca}
+    password: ${DB_PASSWORD:bybusca}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+
+server:
+  port: ${SERVER_PORT:8080}
+
+bybusca:
+  default-tenant: ${BYBUSCA_DEFAULT_TENANT:demo-escola}
+  jwt:
+    secret: ${JWT_SECRET:change-me-bybusca-dev-secret-key-32b-min}
+    expiration-minutes: ${JWT_EXPIRATION_MINUTES:480}
+  pse:
+    api-key: ${GOOGLE_PSE_API_KEY:}
+    cx: ${GOOGLE_PSE_CX:}
+    enabled: ${GOOGLE_PSE_ENABLED:false}
+    timeout-ms: ${GOOGLE_PSE_TIMEOUT_MS:2500}
+  vision:
+    enabled: ${GOOGLE_VISION_ENABLED:false}
+    api-key: ${GOOGLE_VISION_API_KEY:}
+    timeout-ms: ${GOOGLE_VISION_TIMEOUT_MS:4000}
+    max-upload-bytes: ${GOOGLE_VISION_MAX_UPLOAD_BYTES:5242880}
+
+logging:
+  level:
+    br.bybusca: INFO
